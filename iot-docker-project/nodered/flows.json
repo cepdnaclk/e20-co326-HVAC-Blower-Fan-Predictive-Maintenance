@@ -80,6 +80,8 @@
         "z": "6abdd8dbb5bc17b0",
         "name": "",
         "property": "payload",
+        "action": "",
+        "pretty": false,
         "x": 460,
         "y": 520,
         "wires": [

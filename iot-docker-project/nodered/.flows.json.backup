@@ -110,7 +110,7 @@
         "type": "function",
         "z": "6abdd8dbb5bc17b0",
         "name": "function 1",
-        "func": "var data = msg.payload;\n\n// Check if data actually contains x, y, or z\nif (typeof data.x === 'undefined') {\n    node.warn(\"Payload did not contain numeric data. Check the JSON node output!\");\n}\n\nmsg.payload = {\n    x: Number(data.x) || 0,\n    y: Number(data.y) || 0,\n    z: Number(data.z) || 0\n};\n\nmsg.measurement = \"mpu6050\";\nreturn msg;",
+        "func": "var rawData = msg.payload;\n\n// If data is a string, it means the JSON node failed. Let's try to fix it.\nif (typeof rawData === 'string') {\n    try {\n        // Remove backslashes and extra quotes that CMD adds\n        var cleaned = rawData.replace(/\\\\\"/g, '\"').replace(/^\"|\"$/g, '');\n        rawData = JSON.parse(cleaned);\n    } catch (e) {\n        node.error(\"Still can't parse JSON: \" + rawData);\n        return null;\n    }\n}\n\n// Map the values\nmsg.payload = {\n    x: Number(rawData.x),\n    y: Number(rawData.y),\n    z: Number(rawData.z)\n};\n\nmsg.measurement = \"mpu6050\";\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
