@@ -1,0 +1,33 @@
+1776675933: mosquitto version 2.0.22 starting
+1776675933: Config loaded from /mosquitto/config/mosquitto.conf.
+1776675933: Opening ipv4 listen socket on port 1883.
+1776675933: Opening ipv6 listen socket on port 1883.
+1776675933: mosquitto version 2.0.22 running
+1776676175: New connection from ::1:44808 on port 1883.
+1776676175: New client connected from ::1:44808 as auto-75C55DF0-A6B2-8A9E-1B9C-B524F131F65E (p2, c1, k60).
+1776676238: New connection from ::1:48728 on port 1883.
+1776676238: New client connected from ::1:48728 as auto-D4EEF5BF-58C2-0FD1-E2B7-F7E94DB3B150 (p2, c1, k60).
+1776676238: Client auto-D4EEF5BF-58C2-0FD1-E2B7-F7E94DB3B150 disconnected.
+1776676383: Client auto-75C55DF0-A6B2-8A9E-1B9C-B524F131F65E disconnected.
+1776676830: New connection from 172.25.0.3:54032 on port 1883.
+1776676830: New client connected from 172.25.0.3:54032 as nodered78dcaa490c7f6d02 (p2, c1, k60).
+1776676862: New connection from ::1:44386 on port 1883.
+1776676862: New client connected from ::1:44386 as auto-B21EE71C-E11C-8F98-AF4D-8B4588CFF518 (p2, c1, k60).
+1776676862: Client auto-B21EE71C-E11C-8F98-AF4D-8B4588CFF518 disconnected.
+1776676990: New connection from ::1:40946 on port 1883.
+1776676990: New client connected from ::1:40946 as auto-0382F2DB-EC54-E742-79A6-15FDEE77E076 (p2, c1, k60).
+1776676990: Client auto-0382F2DB-EC54-E742-79A6-15FDEE77E076 disconnected.
+1776677091: New connection from ::1:43892 on port 1883.
+1776677091: New client connected from ::1:43892 as auto-C57070D4-A19D-4C90-499A-2F8CEB56923B (p2, c1, k60).
+1776677115: New connection from ::1:37752 on port 1883.
+1776677115: New client connected from ::1:37752 as auto-E9373756-6624-C59C-1F89-75FEE2F5E234 (p2, c1, k60).
+1776677115: Client auto-E9373756-6624-C59C-1F89-75FEE2F5E234 disconnected.
+1776677127: Client nodered78dcaa490c7f6d02 disconnected.
+1776677127: New connection from 172.25.0.3:56040 on port 1883.
+1776677127: New client connected from 172.25.0.3:56040 as nodered50ad4109ce5c1c57 (p2, c1, k60).
+1776677150: Client auto-C57070D4-A19D-4C90-499A-2F8CEB56923B disconnected.
+1776677161: New connection from ::1:41380 on port 1883.
+1776677161: New client connected from ::1:41380 as auto-B41750FE-E5D4-DF2A-0E59-886124163F2E (p2, c1, k60).
+1776677167: New connection from ::1:34354 on port 1883.
+1776677167: New client connected from ::1:34354 as auto-2966828B-CC39-A81D-44EE-DA80F76C732B (p2, c1, k60).
+1776677167: Client auto-2966828B-CC39-A81D-44EE-DA80F76C732B disconnected.

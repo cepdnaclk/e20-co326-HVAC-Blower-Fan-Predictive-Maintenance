@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - iot-network
+
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: always
+
+    ports:
+      - "1880:1880"
+
+    volumes:
+      - ./nodered:/data
+
+    depends_on:
+      - mosquitto
+
+    networks:
+      - iot-network
+
+networks:
+  iot-network:
+    driver: bridge
