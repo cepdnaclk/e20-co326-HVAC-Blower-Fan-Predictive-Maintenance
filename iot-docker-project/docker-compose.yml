@@ -19,16 +19,24 @@ services:
     image: nodered/node-red:latest
     container_name: nodered
     restart: always
-
     ports:
       - "1880:1880"
-
     volumes:
       - ./nodered:/data
-
     depends_on:
       - mosquitto
+      - influxdb
+    networks:
+      - iot-network
 
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: always
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb:/var/lib/influxdb2
     networks:
       - iot-network
 
