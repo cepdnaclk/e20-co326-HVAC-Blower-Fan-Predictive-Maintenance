@@ -130,7 +130,7 @@ This section is best understood as the main integration target, but not yet the 
 
 ### 3. `iot-docker-project/`
 
-This appears to be an earlier standalone prototype for the containerized telemetry stack.
+This is an earlier standalone prototype for the containerized telemetry stack.
 
 It includes:
 
