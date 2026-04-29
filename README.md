@@ -197,3 +197,14 @@ If you are trying to understand the repository quickly:
 - The top-level `ML_Pipeline_Architecture.md` is a broader architecture narrative and is more ambitious than the current codebase.
 - Some documents describe advanced features such as digital twin behavior, TLS, Sparkplug B, buffering, and richer anomaly logic that are not fully implemented in the checked-in source.
 - Do not assume every documented feature already exists in code; several documents are design-forward.
+
+## Contributors
+
+
+### Team Members
+
+  - **[Full Name 1]**
+  - **[Full Name 2]**
+  - **[Full Name 3]**
+  - **E/20/279-Panawennage L.S.** 
+
