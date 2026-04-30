@@ -12,7 +12,7 @@ Inputs:
     data/features_all.csv
 
 Outputs:
-    data/autoencoder_best.h5     — Best Keras model
+    data/autoencoder_best.keras  — Best Keras model
     data/autoencoder.tflite      — TFLite version for server deployment
     data/ae_training_history.png — Loss curves
 """
@@ -127,7 +127,7 @@ def main():
     # ─── Train ───────────────────────────────────────────────────
     print("\n[STEP 2] Training...")
 
-    model_path = os.path.join(DATA_DIR, "autoencoder_best.h5")
+    model_path = os.path.join(DATA_DIR, "autoencoder_best.keras")
     history = model.fit(
         X_train, X_train,
         epochs=50,
