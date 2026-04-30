@@ -1,0 +1,366 @@
+[
+    {
+        "id": "flow_tab_main",
+        "type": "tab",
+        "label": "HVAC Data Pipeline",
+        "disabled": false,
+        "info": "Main data ingestion flow: MQTT → Parse → InfluxDB"
+    },
+    {
+        "id": "flow_tab_alerts",
+        "type": "tab",
+        "label": "Alert Engine",
+        "disabled": false,
+        "info": "Anomaly threshold checks and alert notifications"
+    },
+    {
+        "id": "flow_tab_control",
+        "type": "tab",
+        "label": "Relay Control",
+        "disabled": false,
+        "info": "Dashboard → MQTT relay command"
+    },
+    {
+        "id": "mqtt_broker_config",
+        "type": "mqtt-broker",
+        "name": "Mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "nodered_client",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "influxdb_config",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "hvac_data",
+        "name": "InfluxDB",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": "",
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "mqtt_in_data",
+        "type": "mqtt in",
+        "z": "flow_tab_main",
+        "name": "📡 MQTT: hvac/fan01/data",
+        "topic": "hvac/fan01/data",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mqtt_broker_config",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 120,
+        "wires": [
+            [
+                "parse_data",
+                "debug_raw"
+            ]
+        ]
+    },
+    {
+        "id": "debug_raw",
+        "type": "debug",
+        "z": "flow_tab_main",
+        "name": "🔍 Raw Data",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload.anomaly_score",
+        "statusType": "msg",
+        "x": 450,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "parse_data",
+        "type": "function",
+        "z": "flow_tab_main",
+        "name": "📦 Build InfluxDB Point",
+        "func": "// Flatten ESP32 JSON into direct field values for InfluxDB\nvar d = msg.payload;\n\nmsg.payload = {\n    vib_rms: parseFloat(d.vib_rms) || 0,\n    vib_peak: parseFloat(d.vib_peak) || 0,\n    vib_crest: parseFloat(d.vib_crest) || 0,\n    vib_kurt: parseFloat(d.vib_kurt) || 0,\n    cur_rms: parseFloat(d.cur_rms) || 0,\n    cur_std: parseFloat(d.cur_std) || 0,\n    dom_freq: parseFloat(d.dom_freq) || 0,\n    spec_rms: parseFloat(d.spec_rms) || 0,\n    spec_cent: parseFloat(d.spec_cent) || 0,\n    band1: parseFloat(d.band1) || 0,\n    band2: parseFloat(d.band2) || 0,\n    band3: parseFloat(d.band3) || 0,\n    anomaly_score: parseFloat(d.anomaly_score) || 0,\n    anomaly_label: parseInt(d.anomaly_label) || 0,\n    min_dist: parseFloat(d.min_dist) || 0,\n    cluster: parseInt(d.cluster) || 0,\n    relay: d.relay ? 1 : 0,\n    rssi: parseInt(d.rssi) || 0\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 120,
+        "wires": [
+            [
+                "influx_write"
+            ]
+        ]
+    },
+    {
+        "id": "influx_write",
+        "type": "influxdb out",
+        "z": "flow_tab_main",
+        "influxdb": "influxdb_config",
+        "name": "💾 Write to InfluxDB",
+        "measurement": "hvac_sensor",
+        "precision": "ms",
+        "retentionPolicy": "",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "hvac_lab",
+        "bucket": "hvac_data",
+        "x": 730,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "mqtt_in_alert",
+        "type": "mqtt in",
+        "z": "flow_tab_alerts",
+        "name": "📡 MQTT: hvac/fan01/data",
+        "topic": "hvac/fan01/data",
+        "qos": "1",
+        "datatype": "json",
+        "broker": "mqtt_broker_config",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 170,
+        "y": 120,
+        "wires": [
+            [
+                "check_threshold"
+            ]
+        ]
+    },
+    {
+        "id": "check_threshold",
+        "type": "function",
+        "z": "flow_tab_alerts",
+        "name": "🚨 Check Anomaly Thresholds",
+        "func": "var score = msg.payload.anomaly_score;\nvar label = msg.payload.anomaly_label;\nvar WARN_THR = 0.0035;\nvar CRIT_THR = 0.05;\n\n// Rate limit: only alert once per minute per level\nvar now = Date.now();\nvar lastAlert = flow.get('lastAlert') || 0;\n\nif (label === 2 && (now - lastAlert > 60000)) {\n    // CRITICAL\n    flow.set('lastAlert', now);\n    msg.payload = {\n        level: 'CRITICAL',\n        score: score,\n        message: '🚨 CRITICAL: Fan vibration anomaly detected! Score: ' + score.toFixed(4) + '. Auto-shutdown initiated.',\n        timestamp: new Date().toISOString()\n    };\n    node.status({fill:'red', shape:'dot', text:'CRITICAL ' + score.toFixed(4)});\n    return [msg, null];\n} else if (label === 1 && (now - lastAlert > 60000)) {\n    // WARNING\n    flow.set('lastAlert', now);\n    msg.payload = {\n        level: 'WARNING',\n        score: score,\n        message: '⚠️ WARNING: Elevated vibration detected. Score: ' + score.toFixed(4) + '. Schedule maintenance.',\n        timestamp: new Date().toISOString()\n    };\n    node.status({fill:'yellow', shape:'ring', text:'WARNING ' + score.toFixed(4)});\n    return [null, msg];\n} else {\n    node.status({fill:'green', shape:'dot', text:'NORMAL ' + score.toFixed(4)});\n    return [null, null];\n}",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 120,
+        "wires": [
+            [
+                "alert_critical_debug",
+                "alert_mqtt_pub"
+            ],
+            [
+                "alert_warning_debug",
+                "alert_mqtt_pub"
+            ]
+        ],
+        "outputLabels": [
+            "Critical",
+            "Warning"
+        ]
+    },
+    {
+        "id": "alert_critical_debug",
+        "type": "debug",
+        "z": "flow_tab_alerts",
+        "name": "🚨 CRITICAL Alert",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload.message",
+        "targetType": "msg",
+        "statusVal": "payload.message",
+        "statusType": "msg",
+        "x": 770,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "alert_warning_debug",
+        "type": "debug",
+        "z": "flow_tab_alerts",
+        "name": "⚠️ WARNING Alert",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload.message",
+        "targetType": "msg",
+        "statusVal": "payload.message",
+        "statusType": "msg",
+        "x": 770,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "alert_mqtt_pub",
+        "type": "mqtt out",
+        "z": "flow_tab_alerts",
+        "name": "📤 Publish Alert",
+        "topic": "hvac/fan01/alerts",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "application/json",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "mqtt_broker_config",
+        "x": 770,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "http_relay_in",
+        "type": "http in",
+        "z": "flow_tab_control",
+        "name": "🔌 POST /relay",
+        "url": "/relay",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 160,
+        "y": 120,
+        "wires": [
+            [
+                "relay_command"
+            ]
+        ]
+    },
+    {
+        "id": "http_relay_get",
+        "type": "http in",
+        "z": "flow_tab_control",
+        "name": "🔌 GET /relay/:state",
+        "url": "/relay/:state",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 170,
+        "y": 200,
+        "wires": [
+            [
+                "relay_get_cmd"
+            ]
+        ]
+    },
+    {
+        "id": "relay_get_cmd",
+        "type": "function",
+        "z": "flow_tab_control",
+        "name": "Parse GET param",
+        "func": "var state = msg.req.params.state;\nmsg.payload = { relay: (state === 'on' || state === '1' || state === 'true') };\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "x": 420,
+        "y": 200,
+        "wires": [
+            [
+                "relay_mqtt_out",
+                "relay_response"
+            ]
+        ]
+    },
+    {
+        "id": "relay_command",
+        "type": "function",
+        "z": "flow_tab_control",
+        "name": "🔧 Build Relay Command",
+        "func": "// Expects POST body: { \"relay\": true/false }\nvar cmd = msg.payload;\nif (typeof cmd.relay === 'undefined') {\n    msg.payload = { error: 'Missing relay field. Use {\"relay\": true} or {\"relay\": false}' };\n    msg.statusCode = 400;\n    return [null, msg];\n}\n\nmsg.payload = {\n    relay: cmd.relay === true || cmd.relay === 'true' || cmd.relay === 1\n};\n\nnode.status({fill: msg.payload.relay ? 'green' : 'red', shape: 'dot', text: msg.payload.relay ? 'ON' : 'OFF'});\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 120,
+        "wires": [
+            [
+                "relay_mqtt_out",
+                "relay_response"
+            ],
+            [
+                "relay_error_response"
+            ]
+        ],
+        "outputLabels": [
+            "OK",
+            "Error"
+        ]
+    },
+    {
+        "id": "relay_mqtt_out",
+        "type": "mqtt out",
+        "z": "flow_tab_control",
+        "name": "📤 MQTT: hvac/fan01/command",
+        "topic": "hvac/fan01/command",
+        "qos": "1",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "application/json",
+        "broker": "mqtt_broker_config",
+        "x": 750,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "relay_response",
+        "type": "http response",
+        "z": "flow_tab_control",
+        "name": "✅ 200 OK",
+        "statusCode": "200",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "x": 700,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "relay_error_response",
+        "type": "http response",
+        "z": "flow_tab_control",
+        "name": "❌ 400 Error",
+        "statusCode": "400",
+        "headers": {
+            "Content-Type": "application/json"
+        },
+        "x": 710,
+        "y": 240,
+        "wires": []
+    }
+]
