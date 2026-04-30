@@ -1,0 +1,9 @@
+{
+  "warning_threshold": 0.0035,
+  "critical_threshold": 0.05,
+  "max_distance": 845.6086,
+  "f1_score": 0.5878,
+  "roc_auc": 0.9629,
+  "n_samples_normal": 1638,
+  "n_samples_anomaly": 800
+}
