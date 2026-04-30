@@ -1,0 +1,24 @@
+﻿# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Large media (not project related)
+*.mp4
+
+# Unrelated files
+baywork_roadmap_slide_*.png
+*.zip
+
+# Commit script (not part of project)
+commit_script.ps1
