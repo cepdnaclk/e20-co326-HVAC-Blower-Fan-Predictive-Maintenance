@@ -203,8 +203,8 @@ If you are trying to understand the repository quickly:
 
 ### Team Members
 
-  - **[Full Name 1]**
-  - **[Full Name 2]**
-  - **[Full Name 3]**
+  - **E/20/262 -  Nanayakara A.T.L**
+  - **E/20/288 – Perera M.C.S.J**
+  - **E/20/449 - Wijewardhana A.R.S.S**
   - **E/20/279-Panawennage L.S.** 
 
