@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════
+# HVAC Fan Predictive Maintenance — Docker Stack
+# ═══════════════════════════════════════════════════════════════
+# Usage: docker compose up -d
+# ═══════════════════════════════════════════════════════════════
+
+networks:
+  hvac_net:
+    driver: bridge
+
+volumes:
+  influxdb_data:
+  grafana_data:
+
+services:
+
+  # ─── MQTT Broker ──────────────────────────────────────────
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: unless-stopped
+    networks:
+      - hvac_net
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  # ─── Node-RED (Data Pipeline + Alert Engine) ──────────────
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+      - influxdb
+    networks:
+      - hvac_net
+    ports:
+      - "1880:1880"
+    environment:
+      - TZ=Asia/Colombo
+    volumes:
+      - ./nodered/data:/data
+
+  # ─── InfluxDB (Time-Series Database) ─────────────────────
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    networks:
+      - hvac_net
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUX_PASS}
+      - DOCKER_INFLUXDB_INIT_ORG=hvac_lab
+      - DOCKER_INFLUXDB_INIT_BUCKET=hvac_data
+      - DOCKER_INFLUXDB_INIT_RETENTION=30d
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+  # ─── Grafana (SCADA Dashboard) ───────────────────────────
+  grafana:
+    image: grafana/grafana-oss:10.2.0
+    container_name: grafana
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+    networks:
+      - hvac_net
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/hvac_dashboard.json
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
