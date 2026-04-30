@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    jsonData:
+      version: Flux
+      organization: hvac_lab
+      defaultBucket: hvac_data
+    secureJsonData:
+      token: my-super-secret-influx-token-change-me
+    isDefault: true
+    editable: true
