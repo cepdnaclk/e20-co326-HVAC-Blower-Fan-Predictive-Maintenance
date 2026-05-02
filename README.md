@@ -2,6 +2,10 @@
 
 CO326 project repository for an HVAC blower fan predictive maintenance prototype built around an ESP32, vibration/current sensing, lightweight anomaly detection, MQTT telemetry, and a Docker-based IIoT monitoring stack.
 
+## Path to report
+Report
+
+
 ## What This Repository Contains
 
 This repository is not a single polished application. It contains three related parts at different maturity levels:
